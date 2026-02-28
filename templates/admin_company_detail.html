@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% block title %}{{ company.name }} — Profecia{% endblock %}
+{% block page_title %}{{ company.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{{ url_for('admin_companies') }}" class="btn btn-sm btn-outline-custom">
+        <i class="bi bi-arrow-left me-1"></i> Voltar
+    </a>
+    <span style="color:var(--text-muted-custom);">
+        {% if company.segment %}{{ company.segment }}{% endif %}
+        {% if company.cnpj %} · {{ company.cnpj }}{% endif %}
+    </span>
+</div>
+
+<div class="row g-4">
+    <!-- LEFT COLUMN -->
+    <div class="col-lg-4">
+        <!-- Company Info Card -->
+        <div class="dash-card mb-4">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="company-initials" style="width:56px;height:56px;font-size:1.2rem;border-radius:14px;
+                    background:rgba(0,212,170,.15);color:#00d4aa;">
+                    {{ company.name[:2].upper() }}
+                </div>
+                <div>
+                    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;">{{ company.name }}</div>
+                    {% if company.has_data %}
+                    <span class="badge-entrada"><i class="bi bi-check-circle me-1"></i>Dados carregados</span>
+                    {% else %}
+                    <span class="badge-pendente"><i class="bi bi-hourglass me-1"></i>Aguardando Excel</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="d-flex flex-column gap-2">
+                <div class="d-flex justify-content-between" style="font-size:.84rem;">
+                    <span style="color:var(--text-muted-custom);">ID</span>
+                    <code style="color:#a78bfa;font-size:.78rem;">{{ company.id }}</code>
+                </div>
+                <div class="d-flex justify-content-between" style="font-size:.84rem;">
+                    <span style="color:var(--text-muted-custom);">Criado em</span>
+                    <span>{{ company.created_at[:10] if company.created_at else '—' }}</span>
+                </div>
+                {% if company.last_upload %}
+                <div class="d-flex justify-content-between" style="font-size:.84rem;">
+                    <span style="color:var(--text-muted-custom);">Último upload</span>
+                    <span>{{ company.last_upload[:10] }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Client User Card -->
+        {% if company_user %}
+        <div class="dash-card mb-4">
+            <div style="font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted-custom);font-weight:600;margin-bottom:14px;">
+                Acesso do Cliente
+            </div>
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="avatar" style="width:40px;height:40px;border-radius:10px;font-size:.9rem;">
+                    {{ company_user.name[0].upper() }}
+                </div>
+                <div>
+                    <div style="font-weight:600;font-size:.9rem;">{{ company_user.name }}</div>
+                    <div style="color:var(--text-muted-custom);font-size:.78rem;">@{{ company_user.username }}</div>
+                </div>
+            </div>
+            {% if company_user.email %}
+            <div style="font-size:.82rem;color:var(--text-muted-custom);margin-bottom:14px;">
+                <i class="bi bi-envelope me-1"></i>{{ company_user.email }}
+            </div>
+            {% endif %}
+            <!-- Reset Password -->
+            <form method="POST" action="{{ url_for('admin_reset_password', user_id=company_user.id) }}"
+                  class="d-flex gap-2 mt-2">
+                <input type="password" name="new_password" class="form-control form-control-custom"
+                       placeholder="Nova senha..." style="font-size:.82rem;padding:8px 12px;">
+                <button type="submit" class="btn btn-sm"
+                        style="background:rgba(0,153,255,.15);color:#0099ff;border-radius:8px;padding:8px 14px;border:none;white-space:nowrap;font-size:.78rem;">
+                    <i class="bi bi-key"></i>
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- Upload Card -->
+        <div class="dash-card">
+            <div style="font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted-custom);font-weight:600;margin-bottom:14px;">
+                <i class="bi bi-upload me-1"></i>Importar Excel
+            </div>
+
+            <form method="POST" action="{{ url_for('admin_upload_excel', company_id=company.id) }}"
+                  enctype="multipart/form-data" id="uploadForm">
+                <div class="upload-zone" id="uploadZone" onclick="document.getElementById('excelFile').click()">
+                    <div class="upload-icon"><i class="bi bi-file-earmark-spreadsheet"></i></div>
+                    <div style="font-weight:600;margin-bottom:4px;" id="uploadLabel">Clique para selecionar</div>
+                    <div style="font-size:.78rem;color:var(--text-muted-custom);">.xlsx ou .xls aceitos</div>
+                    <input type="file" id="excelFile" name="file" accept=".xlsx,.xls"
+                           style="display:none;" onchange="updateLabel(this)">
+                </div>
+
+                <button type="submit" class="btn-accent btn w-100 mt-3" id="submitBtn" disabled>
+                    <i class="bi bi-cloud-upload me-1"></i> Processar e Importar
+                </button>
+            </form>
+
+            {% if data.get('filename') %}
+            <div style="margin-top:14px;padding:10px 14px;background:rgba(0,212,170,.08);border-radius:10px;font-size:.8rem;">
+                <i class="bi bi-file-earmark-check me-1" style="color:var(--accent);"></i>
+                <strong>{{ data.filename }}</strong>
+                <div style="color:var(--text-muted-custom);margin-top:2px;">
+                    Importado em {{ data.uploaded_at[:10] if data.uploaded_at else '' }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- RIGHT COLUMN — DATA PREVIEW -->
+    <div class="col-lg-8">
+        {% if data %}
+        <!-- Summary Stats -->
+        {% if data.summary %}
+        <div class="row g-3 mb-4">
+            {% if data.summary.get('total_entradas') %}
+            <div class="col-4">
+                <div class="stat-card green">
+                    <div class="stat-icon green"><i class="bi bi-graph-up-arrow"></i></div>
+                    <div class="stat-value" style="font-size:1.3rem;">
+                        R$ {{ "{:,.0f}".format(data.summary.total_entradas).replace(',', '.') }}
+                    </div>
+                    <div class="stat-label">Total Entradas</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-card red">
+                    <div class="stat-icon red"><i class="bi bi-graph-down-arrow"></i></div>
+                    <div class="stat-value" style="font-size:1.3rem;">
+                        R$ {{ "{:,.0f}".format(data.summary.total_saidas).replace(',', '.') }}
+                    </div>
+                    <div class="stat-label">Total Saídas</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-card {{ 'green' if data.summary.saldo >= 0 else 'red' }}">
+                    <div class="stat-icon {{ 'green' if data.summary.saldo >= 0 else 'red' }}">
+                        <i class="bi bi-wallet2"></i>
+                    </div>
+                    <div class="stat-value" style="font-size:1.3rem;">
+                        R$ {{ "{:,.0f}".format(data.summary.saldo|abs).replace(',', '.') }}
+                    </div>
+                    <div class="stat-label">Saldo Período</div>
+                </div>
+            </div>
+            {% elif data.summary.get('saldo_inicial') %}
+            <div class="col-4">
+                <div class="stat-card blue">
+                    <div class="stat-icon blue"><i class="bi bi-wallet2"></i></div>
+                    <div class="stat-value" style="font-size:1.3rem;">
+                        R$ {{ "{:,.0f}".format(data.summary.saldo_inicial).replace(',', '.') }}
+                    </div>
+                    <div class="stat-label">Saldo Inicial</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-card {{ 'green' if data.summary.get('geracao_caixa', 0) >= 0 else 'red' }}">
+                    <div class="stat-icon {{ 'green' if data.summary.get('geracao_caixa', 0) >= 0 else 'red' }}">
+                        <i class="bi bi-arrow-left-right"></i>
+                    </div>
+                    <div class="stat-value" style="font-size:1.3rem;">
+                        R$ {{ "{:,.0f}".format(data.summary.get('geracao_caixa', 0)|abs).replace(',', '.') }}
+                    </div>
+                    <div class="stat-label">Geração de Caixa</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-card green">
+                    <div class="stat-icon green"><i class="bi bi-bank"></i></div>
+                    <div class="stat-value" style="font-size:1.3rem;">
+                        R$ {{ "{:,.0f}".format(data.summary.get('saldo_final', 0)).replace(',', '.') }}
+                    </div>
+                    <div class="stat-label">Saldo Final</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Transactions Preview -->
+        {% if data.transactions %}
+        <div class="dash-card p-0" style="overflow:hidden;">
+            <div class="px-4 py-3 d-flex align-items-center justify-content-between"
+                 style="border-bottom:1px solid var(--border);">
+                <span style="font-family:'Syne',sans-serif;font-weight:700;">Transações Importadas</span>
+                <span class="badge-pago">{{ data.transactions|length }} registros</span>
+            </div>
+            <div style="overflow-x:auto;max-height:400px;overflow-y:auto;">
+                <table class="table table-custom mb-0">
+                    <thead style="position:sticky;top:0;z-index:1;">
+                        <tr>
+                            <th>Data</th>
+                            <th>Descrição</th>
+                            <th>Categoria</th>
+                            <th>Valor</th>
+                            <th>Tipo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in data.transactions %}
+                        <tr>
+                            <td style="font-size:.8rem;color:var(--text-muted-custom);">{{ t.data }}</td>
+                            <td style="font-size:.83rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                                {{ t.descricao }}
+                            </td>
+                            <td style="font-size:.78rem;color:var(--text-muted-custom);">{{ t.categoria }}</td>
+                            <td style="font-weight:600;font-size:.85rem;
+                                color: {{ '#00d4aa' if t.valor > 0 else '#ff4757' }};">
+                                R$ {{ "{:,.2f}".format(t.valor|abs).replace(',', 'X').replace('.', ',').replace('X', '.') }}
+                            </td>
+                            <td>
+                                {% if t.tipo == 'Entrada' %}
+                                <span class="badge-entrada">Entrada</span>
+                                {% else %}
+                                <span class="badge-saida">Saída</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="dash-card text-center py-5">
+            <i class="bi bi-file-earmark-spreadsheet" style="font-size:3rem;color:var(--text-muted-custom);"></i>
+            <div style="font-family:'Syne',sans-serif;font-weight:600;margin-top:12px;">Nenhum dado importado</div>
+            <div style="color:var(--text-muted-custom);font-size:.88rem;">Faça upload de um arquivo Excel para visualizar os dados</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function updateLabel(input) {
+    const label = document.getElementById('uploadLabel');
+    const btn = document.getElementById('submitBtn');
+    if (input.files.length > 0) {
+        label.textContent = input.files[0].name;
+        btn.disabled = false;
+    }
+}
+
+// Drag and drop
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const file = document.getElementById('excelFile');
+    file.files = e.dataTransfer.files;
+    updateLabel(file);
+});
+</script>
+{% endblock %}

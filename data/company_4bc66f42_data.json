@@ -1,0 +1,259 @@
+{
+  "sheets": [
+    "Comissões",
+    "Salários",
+    "Tabela",
+    "Base",
+    "TOTAL",
+    "ADM",
+    "CML",
+    "RH"
+  ],
+  "summary": {
+    "total_entradas": 2630553.87,
+    "total_saidas": 2272627.79,
+    "saldo": 357926.08
+  },
+  "transactions": [
+    {
+      "data": "2026-01-30",
+      "descricao": "Salário",
+      "categoria": "PES - Salários",
+      "valor": -1911.61,
+      "tipo": "Saída",
+      "status": "Pago"
+    },
+    {
+      "data": "2026-01-30",
+      "descricao": "Salário",
+      "categoria": "PES - Salários",
+      "valor": -1621.0,
+      "tipo": "Saída",
+      "status": "Pago"
+    },
+    {
+      "data": "2026-01-30",
+      "descricao": "VALE TRANSPORTE DE GIOVANA V",
+      "categoria": "PES - Benefícios",
+      "valor": -131.5,
+      "tipo": "Saída",
+      "status": "Pago"
+    },
+    {
+      "data": "2026-01-30",
+      "descricao": "Pagamento de benefícios: SAMARA ALMEIDA BOGEA (300,00) - MARIA EDUARDA DE SOUZA (300,00) - GIOVANNA VICTORIA GOMES RODRIGUES (300,00) - NINA ARAUJO (300,00) + Taxas da VALUU (2,50)",
+      "categoria": "PES - Benefícios",
+      "valor": -1802.5,
+      "tipo": "Saída",
+      "status": "Pago"
+    },
+    {
+      "data": "2026-01-30",
+      "descricao": "LIMPEZA",
+      "categoria": "ADM - Limpeza",
+      "valor": -340.0,
+      "tipo": "Saída",
+      "status": "Pago"
+    },
+    {
+      "data": "2026-01-30",
+      "descricao": "Retiradas de Sócias",
+      "categoria": "DIR - Distribuição de Lucros",
+      "valor": -6057.31,
+      "tipo": "Saída",
+      "status": "Pago"
+    },
+    {
+      "data": "2026-01-30",
+      "descricao": "Anuidade OAB DR Sarah",
+      "categoria": "T&O - Anuidade OAB",
+      "valor": -999.0,
+      "tipo": "Saída",
+      "status": "Pago"
+    },
+    {
+      "data": "2026-01-30",
+      "descricao": "Anuidade OAB DR Raffaela",
+      "categoria": "T&O - Anuidade OAB",
+      "valor": -550.0,
+      "tipo": "Saída",
+      "status": "Pago"
+    },
+    {
+      "data": "2026-01-30",
+      "descricao": "PRÓ-LABORE",
+      "categoria": "DIR - Pró-labore",
+      "valor": -1442.69,
+      "tipo": "Saída",
+      "status": "Pago"
+    },
+    {
+      "data": "2026-01-30",
+      "descricao": "Pagamento de Salários",
+      "categoria": "PES - Salários",
+      "valor": -1994.99,
+      "tipo": "Saída",
+      "status": "Pago"
+    },
+    {
+      "data": "2026-01-30",
+      "descricao": "Salário",
+      "categoria": "PES - Salários",
+      "valor": -3500.0,
+      "tipo": "Saída",
+      "status": "Pago"
+    },
+    {
+      "data": "2026-01-30",
+      "descricao": "Anuidade OAB DR Thaynara",
+      "categoria": "T&O - Anuidade OAB",
+      "valor": -999.0,
+      "tipo": "Saída",
+      "status": "Pago"
+    },
+    {
+      "data": "2026-01-30",
+      "descricao": "Retirada de Sócias",
+      "categoria": "DIR - Distribuição de Lucros",
+      "valor": -5057.31,
+      "tipo": "Saída",
+      "status": "Pago"
+    },
+    {
+      "data": "2026-01-30",
+      "descricao": "Assistência de T.I",
+      "categoria": "ADM - Serviços de TI",
+      "valor": -1058.0,
+      "tipo": "Saída",
+      "status": "Pago"
+    },
+    {
+      "data": "2026-01-30",
+      "descricao": "Salário",
+      "categoria": "PES - Salários",
+      "valor": -1433.99,
+      "tipo": "Saída",
+      "status": "Pago"
+    },
+    {
+      "data": "2026-01-30",
+      "descricao": "Pagamento de salários",
+      "categoria": "PES - Salários",
+      "valor": -1994.99,
+      "tipo": "Saída",
+      "status": "Pago"
+    },
+    {
+      "data": "2026-01-30",
+      "descricao": "PRÓ-LABORE",
+      "categoria": "DIR - Pró-labore",
+      "valor": -1442.69,
+      "tipo": "Saída",
+      "status": "Pago"
+    },
+    {
+      "data": "2026-01-30",
+      "descricao": "Salário",
+      "categoria": "PES - Salários",
+      "valor": -3632.69,
+      "tipo": "Saída",
+      "status": "Pago"
+    },
+    {
+      "data": "2026-01-30",
+      "descricao": "20% recebidos de devolução INSS",
+      "categoria": "Honorários",
+      "valor": 57.32,
+      "tipo": "Entrada",
+      "status": "Recebido"
+    },
+    {
+      "data": "2026-01-30",
+      "descricao": "Salário",
+      "categoria": "PES - Salários",
+      "valor": -1946.25,
+      "tipo": "Saída",
+      "status": "Pago"
+    }
+  ],
+  "charts": {
+    "monthly": {
+      "labels": [
+        "2024-12",
+        "2025-01",
+        "2025-02",
+        "2025-03",
+        "2025-04",
+        "2025-05",
+        "2025-06",
+        "2025-07",
+        "2025-08",
+        "2025-09",
+        "2025-10",
+        "2025-11",
+        "2025-12",
+        "2026-01",
+        "NaT"
+      ],
+      "entradas": [
+        19326.89,
+        75478.93,
+        48242.75,
+        94521.69,
+        130421.98,
+        178894.17,
+        26221.61,
+        67046.23,
+        184840.98,
+        793789.89,
+        185123.14,
+        118544.97,
+        651553.82,
+        56546.82,
+        0.0
+      ],
+      "saidas": [
+        56021.03,
+        47428.98,
+        76068.3,
+        87481.6,
+        127157.91,
+        80421.58,
+        82754.93,
+        57488.61,
+        81585.49,
+        580548.29,
+        224857.96,
+        119829.39,
+        536056.61,
+        114927.11,
+        0.0
+      ]
+    },
+    "categorias": {
+      "labels": [
+        "VAR - Comissões e Bonificações",
+        "DIR - Distribuição de Lucros",
+        "PES - Salários",
+        "Transferência",
+        "VAR - Simples Nacional",
+        "ADM - Cartão de Crédito",
+        "ADM - Manutenção do Escritório",
+        "PES - INSS"
+      ],
+      "values": [
+        966899.13,
+        283490.78,
+        178781.78,
+        168393.58,
+        136946.86,
+        69629.58,
+        44926.28,
+        42631.08
+      ]
+    }
+  },
+  "filename": "Financeiro_2025-2026.xlsx",
+  "uploaded_at": "2026-02-27T23:07:03.993553",
+  "company_id": "4bc66f42"
+}

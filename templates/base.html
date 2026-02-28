@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Profecia Dashboard{% endblock %}</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #0a0f1e;
+            --secondary: #111827;
+            --accent: #00d4aa;
+            --accent2: #0099ff;
+            --danger-soft: #ff4757;
+            --sidebar-w: 260px;
+            --card-bg: #13192b;
+            --border: #1e2a42;
+            --text-muted-custom: #6b7a99;
+            --text-main: #e2e8f4;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background: var(--primary);
+            color: var(--text-main);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar-w);
+            height: 100vh;
+            background: var(--secondary);
+            border-right: 1px solid var(--border);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            transition: transform .3s ease;
+        }
+
+        .sidebar-brand {
+            padding: 28px 24px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand-logo {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: var(--accent);
+            letter-spacing: -0.5px;
+            text-decoration: none;
+        }
+
+        .brand-logo span {
+            color: var(--text-main);
+        }
+
+        .brand-sub {
+            font-size: 0.7rem;
+            color: var(--text-muted-custom);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .sidebar-nav {
+            padding: 16px 12px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .nav-label {
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted-custom);
+            padding: 12px 12px 6px;
+            font-weight: 600;
+        }
+
+        .nav-item-custom a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: #8899bb;
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: all .2s;
+            margin-bottom: 2px;
+        }
+
+        .nav-item-custom a:hover {
+            background: rgba(0, 212, 170, 0.1);
+            color: var(--accent);
+        }
+
+        .nav-item-custom a.active {
+            background: rgba(0, 212, 170, 0.15);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .nav-item-custom a i {
+            font-size: 1rem;
+            width: 20px;
+        }
+
+        /* ── MAIN CONTENT ── */
+        .main-wrap {
+            margin-left: var(--sidebar-w);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            background: var(--secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-main);
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #000;
+        }
+
+        .page-content {
+            padding: 28px;
+            flex: 1;
+        }
+
+        /* ── CARDS ── */
+        .dash-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            transition: border-color .2s, transform .2s;
+        }
+
+        .dash-card:hover {
+            border-color: rgba(0, 212, 170, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 60px; height: 60px;
+            border-radius: 0 16px 0 60px;
+            opacity: 0.15;
+        }
+
+        .stat-card.green::before { background: var(--accent); }
+        .stat-card.blue::before { background: var(--accent2); }
+        .stat-card.red::before { background: var(--danger-soft); }
+        .stat-card.purple::before { background: #a78bfa; }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 14px;
+        }
+
+        .stat-icon.green { background: rgba(0, 212, 170, 0.15); color: var(--accent); }
+        .stat-icon.blue { background: rgba(0, 153, 255, 0.15); color: var(--accent2); }
+        .stat-icon.red { background: rgba(255, 71, 87, 0.15); color: var(--danger-soft); }
+        .stat-icon.purple { background: rgba(167, 139, 250, 0.15); color: #a78bfa; }
+
+        .stat-value {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1.6rem;
+            color: var(--text-main);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.78rem;
+            color: var(--text-muted-custom);
+            font-weight: 500;
+        }
+
+        /* ── TABLES ── */
+        .table-custom {
+            color: var(--text-main);
+        }
+
+        .table-custom thead th {
+            background: rgba(255,255,255,0.03);
+            border-color: var(--border);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted-custom);
+            font-weight: 600;
+            padding: 12px 16px;
+        }
+
+        .table-custom tbody td {
+            border-color: var(--border);
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            vertical-align: middle;
+        }
+
+        .table-custom tbody tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+
+        /* ── BADGES ── */
+        .badge-entrada {
+            background: rgba(0, 212, 170, 0.15);
+            color: var(--accent);
+            border-radius: 6px;
+            padding: 3px 10px;
+            font-size: 0.73rem;
+            font-weight: 600;
+        }
+
+        .badge-saida {
+            background: rgba(255, 71, 87, 0.15);
+            color: var(--danger-soft);
+            border-radius: 6px;
+            padding: 3px 10px;
+            font-size: 0.73rem;
+            font-weight: 600;
+        }
+
+        .badge-pago {
+            background: rgba(0, 212, 170, 0.1);
+            color: var(--accent);
+            border-radius: 6px;
+            padding: 3px 10px;
+            font-size: 0.7rem;
+        }
+
+        .badge-pendente {
+            background: rgba(251, 191, 36, 0.1);
+            color: #fbbf24;
+            border-radius: 6px;
+            padding: 3px 10px;
+            font-size: 0.7rem;
+        }
+
+        /* ── FORMS ── */
+        .form-control-custom {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-main);
+            padding: 10px 14px;
+            font-size: 0.88rem;
+            transition: border-color .2s;
+        }
+
+        .form-control-custom:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(0, 212, 170, 0.05);
+            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
+            color: var(--text-main);
+        }
+
+        .form-label-custom {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted-custom);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        /* ── BUTTONS ── */
+        .btn-accent {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            transition: all .2s;
+        }
+
+        .btn-accent:hover {
+            background: #00efc0;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(0, 212, 170, 0.3);
+            color: #000;
+        }
+
+        .btn-outline-custom {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 0.88rem;
+            transition: all .2s;
+        }
+
+        .btn-outline-custom:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(0, 212, 170, 0.05);
+        }
+
+        /* ── UPLOAD ZONE ── */
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            transition: all .2s;
+            cursor: pointer;
+        }
+
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--accent);
+            background: rgba(0, 212, 170, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        /* ── COMPANY CARD ── */
+        .company-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px 24px;
+            transition: all .2s;
+            text-decoration: none;
+            color: var(--text-main);
+            display: block;
+        }
+
+        .company-card:hover {
+            border-color: var(--accent);
+            color: var(--text-main);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .company-initials {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        /* ── ALERTS ── */
+        .alert-custom {
+            background: var(--card-bg);
+            border-left: 4px solid var(--accent);
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: var(--text-main);
+            font-size: 0.88rem;
+        }
+
+        .alert-custom.danger {
+            border-left-color: var(--danger-soft);
+        }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: var(--primary); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2a3a5a; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-wrap { margin-left: 0; }
+            .page-content { padding: 16px; }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+{% if session.user_id %}
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <a href="{{ url_for('dashboard') }}" class="brand-logo">renato<span>®</span></a>
+        <div class="brand-sub">Financial Platform</div>
+    </div>
+
+    <nav class="sidebar-nav">
+        {% if session.role == 'admin' %}
+        <div class="nav-label">Principal</div>
+        <div class="nav-item-custom">
+            <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' }}">
+                <i class="bi bi-grid-1x2"></i> Dashboard
+            </a>
+        </div>
+        <div class="nav-label">Gestão</div>
+        <div class="nav-item-custom">
+            <a href="{{ url_for('admin_companies') }}" class="{{ 'active' if 'compan' in request.endpoint }}">
+                <i class="bi bi-building"></i> Empresas
+            </a>
+        </div>
+        <div class="nav-item-custom">
+            <a href="{{ url_for('admin_users') }}" class="{{ 'active' if 'user' in request.endpoint }}">
+                <i class="bi bi-people"></i> Usuários
+            </a>
+        </div>
+        {% else %}
+        <div class="nav-label">Minha Empresa</div>
+        <div class="nav-item-custom">
+            <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' }}">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+        </div>
+        {% endif %}
+
+        <div class="nav-label">Conta</div>
+        <div class="nav-item-custom">
+            <a href="{{ url_for('logout') }}">
+                <i class="bi bi-box-arrow-right"></i> Sair
+            </a>
+        </div>
+    </nav>
+</aside>
+
+<!-- MAIN -->
+<div class="main-wrap">
+    <div class="topbar">
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn p-1 d-md-none text-white border-0" onclick="document.getElementById('sidebar').classList.toggle('open')">
+                <i class="bi bi-list fs-5"></i>
+            </button>
+            <span class="topbar-title">{% block page_title %}{% endblock %}</span>
+        </div>
+        <div class="user-badge">
+            <div>
+                <div style="font-size:.82rem;font-weight:600;text-align:right;">{{ session.name }}</div>
+                <div style="font-size:.7rem;color:var(--text-muted-custom);text-align:right;">
+                    {% if session.role == 'admin' %}Administrador{% else %}Cliente{% endif %}
+                </div>
+            </div>
+            <div class="avatar">{{ session.name[0].upper() }}</div>
+        </div>
+    </div>
+
+    <div class="page-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="mb-4">
+            {% for cat, msg in messages %}
+            <div class="alert-custom {{ 'danger' if cat == 'danger' else '' }} mb-2 d-flex align-items-center gap-2">
+                <i class="bi {{ 'bi-check-circle-fill text-success' if cat == 'success' else 'bi-exclamation-triangle-fill' if cat == 'danger' else 'bi-info-circle-fill' }}"></i>
+                {{ msg }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+</div>
+{% else %}
+{% block auth_content %}{% endblock %}
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — {{ company.name }}{% endblock %}
+{% block page_title %}{{ company.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chart-container { position: relative; height: 240px; }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if data %}
+<!-- KPI CARDS -->
+{% if data.summary %}
+<div class="row g-3 mb-4">
+    {% if data.summary.get('total_entradas') %}
+    <div class="col-6 col-lg-3">
+        <div class="stat-card green">
+            <div class="stat-icon green"><i class="bi bi-graph-up-arrow"></i></div>
+            <div class="stat-value">
+                R$ {{ "{:,.0f}".format(data.summary.total_entradas).replace(',', '.') }}
+            </div>
+            <div class="stat-label">Total Entradas</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card red">
+            <div class="stat-icon red"><i class="bi bi-graph-down-arrow"></i></div>
+            <div class="stat-value">
+                R$ {{ "{:,.0f}".format(data.summary.total_saidas).replace(',', '.') }}
+            </div>
+            <div class="stat-label">Total Saídas</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card {{ 'green' if data.summary.saldo >= 0 else 'red' }}">
+            <div class="stat-icon {{ 'green' if data.summary.saldo >= 0 else 'red' }}">
+                <i class="bi bi-wallet2"></i>
+            </div>
+            <div class="stat-value">
+                R$ {{ "{:,.0f}".format(data.summary.saldo|abs).replace(',', '.') }}
+            </div>
+            <div class="stat-label">Saldo Período</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="bi bi-receipt"></i></div>
+            <div class="stat-value">{{ data.transactions|length }}</div>
+            <div class="stat-label">Transações</div>
+        </div>
+    </div>
+    {% elif data.summary.get('saldo_inicial') %}
+    <div class="col-6 col-lg-4">
+        <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="bi bi-wallet2"></i></div>
+            <div class="stat-value">
+                R$ {{ "{:,.0f}".format(data.summary.saldo_inicial).replace(',', '.') }}
+            </div>
+            <div class="stat-label">Saldo Inicial</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-4">
+        <div class="stat-card {{ 'green' if data.summary.get('geracao_caixa',0) >= 0 else 'red' }}">
+            <div class="stat-icon {{ 'green' if data.summary.get('geracao_caixa',0) >= 0 else 'red' }}">
+                <i class="bi bi-arrow-left-right"></i>
+            </div>
+            <div class="stat-value">
+                R$ {{ "{:,.0f}".format(data.summary.get('geracao_caixa',0)|abs).replace(',', '.') }}
+            </div>
+            <div class="stat-label">Geração de Caixa</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-4">
+        <div class="stat-card green">
+            <div class="stat-icon green"><i class="bi bi-bank"></i></div>
+            <div class="stat-value">
+                R$ {{ "{:,.0f}".format(data.summary.get('saldo_final',0)).replace(',', '.') }}
+            </div>
+            <div class="stat-label">Saldo Final</div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- CHARTS ROW -->
+{% if data.charts %}
+<div class="row g-4 mb-4">
+    {% if data.charts.get('monthly') %}
+    <div class="col-lg-7">
+        <div class="dash-card">
+            <div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:20px;">
+                Fluxo Mensal
+                <span style="font-size:.72rem;font-weight:400;color:var(--text-muted-custom);margin-left:8px;">Entradas vs Saídas</span>
+            </div>
+            <div class="chart-container">
+                <canvas id="monthlyChart"></canvas>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if data.charts.get('categorias') %}
+    <div class="col-lg-5">
+        <div class="dash-card">
+            <div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:20px;">
+                Gastos por Categoria
+            </div>
+            <div class="chart-container">
+                <canvas id="catChart"></canvas>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- TRANSACTIONS TABLE -->
+{% if data.transactions %}
+<div class="dash-card p-0" style="overflow:hidden;">
+    <div class="px-4 py-3 d-flex align-items-center justify-content-between"
+         style="border-bottom:1px solid var(--border);">
+        <span style="font-family:'Syne',sans-serif;font-weight:700;">
+            Movimentações Recentes
+        </span>
+        <div class="d-flex align-items-center gap-2">
+            <input type="text" id="searchInput" placeholder="Buscar..." 
+                   class="form-control form-control-custom" 
+                   style="width:200px;padding:7px 12px;font-size:.82rem;"
+                   onkeyup="filterTable()">
+            <select id="filterType" class="form-control form-control-custom"
+                    style="width:120px;padding:7px 12px;font-size:.82rem;"
+                    onchange="filterTable()">
+                <option value="">Todos</option>
+                <option value="Entrada">Entradas</option>
+                <option value="Saída">Saídas</option>
+            </select>
+        </div>
+    </div>
+    <div style="overflow-x:auto;max-height:420px;overflow-y:auto;">
+        <table class="table table-custom mb-0" id="txTable">
+            <thead style="position:sticky;top:0;z-index:1;background:var(--card-bg);">
+                <tr>
+                    <th>Data</th>
+                    <th>Descrição</th>
+                    <th>Categoria</th>
+                    <th>Valor</th>
+                    <th>Tipo</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in data.transactions %}
+                <tr>
+                    <td style="font-size:.8rem;color:var(--text-muted-custom);">{{ t.data }}</td>
+                    <td style="font-size:.85rem;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                        <span title="{{ t.descricao }}">{{ t.descricao }}</span>
+                    </td>
+                    <td style="font-size:.78rem;color:var(--text-muted-custom);">{{ t.categoria }}</td>
+                    <td style="font-weight:600;font-size:.88rem;
+                        color: {{ '#00d4aa' if t.valor > 0 else '#ff4757' }};">
+                        {% if t.valor < 0 %}−{% endif %}R$ {{ "{:,.2f}".format(t.valor|abs).replace(',', 'X').replace('.', ',').replace('X', '.') }}
+                    </td>
+                    <td>
+                        {% if t.tipo == 'Entrada' %}
+                        <span class="badge-entrada">Entrada</span>
+                        {% else %}
+                        <span class="badge-saida">Saída</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if t.status in ['Pago', 'Recebido'] %}
+                        <span class="badge-pago">{{ t.status }}</span>
+                        {% else %}
+                        <span class="badge-pendente">{{ t.status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% else %}
+<!-- NO DATA STATE -->
+<div class="dash-card text-center py-5">
+    <i class="bi bi-bar-chart" style="font-size:4rem;color:var(--text-muted-custom);"></i>
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.2rem;margin-top:16px;">
+        Dashboard em breve
+    </div>
+    <div style="color:var(--text-muted-custom);font-size:.9rem;max-width:360px;margin:8px auto;">
+        Seus dados financeiros ainda estão sendo preparados. 
+        Entre em contato com o administrador.
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const CHARTS_DATA = {{ data.charts | tojson if data and data.charts else '{}' }};
+
+// CHART DEFAULTS
+Chart.defaults.color = '#6b7a99';
+Chart.defaults.borderColor = '#1e2a42';
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+
+// MONTHLY CHART
+if (CHARTS_DATA.monthly) {
+    const ctx = document.getElementById('monthlyChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: CHARTS_DATA.monthly.labels.map(l => l.substring(0, 7)),
+                datasets: [
+                    {
+                        label: 'Entradas',
+                        data: CHARTS_DATA.monthly.entradas,
+                        backgroundColor: 'rgba(0, 212, 170, 0.7)',
+                        borderRadius: 6,
+                        borderSkipped: false,
+                    },
+                    {
+                        label: 'Saídas',
+                        data: CHARTS_DATA.monthly.saidas,
+                        backgroundColor: 'rgba(255, 71, 87, 0.6)',
+                        borderRadius: 6,
+                        borderSkipped: false,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { 
+                        labels: { 
+                            color: '#8899bb',
+                            boxWidth: 12,
+                            boxHeight: 12,
+                            borderRadius: 4,
+                            usePointStyle: false,
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#111827',
+                        borderColor: '#1e2a42',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: ctx => ' R$ ' + ctx.parsed.y.toLocaleString('pt-BR', {minimumFractionDigits: 2})
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                    y: {
+                        ticks: {
+                            callback: v => 'R$ ' + (v/1000).toFixed(0) + 'k',
+                            font: { size: 10 }
+                        }
+                    }
+                }
+            }
+        });
+    }
+}
+
+// CATEGORY CHART
+if (CHARTS_DATA.categorias) {
+    const ctx2 = document.getElementById('catChart');
+    if (ctx2) {
+        const palette = [
+            '#00d4aa','#0099ff','#a78bfa','#fbbf24',
+            '#fb923c','#f472b6','#34d399','#60a5fa'
+        ];
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: CHARTS_DATA.categorias.labels,
+                datasets: [{
+                    data: CHARTS_DATA.categorias.values,
+                    backgroundColor: palette,
+                    borderWidth: 0,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#8899bb',
+                            font: { size: 10 },
+                            boxWidth: 10,
+                            boxHeight: 10,
+                            generateLabels(chart) {
+                                const data = chart.data;
+                                return data.labels.map((label, i) => ({
+                                    text: label.length > 18 ? label.substring(0, 18) + '…' : label,
+                                    fillStyle: data.datasets[0].backgroundColor[i],
+                                    fontColor: '#8899bb',
+                                    index: i
+                                }));
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#111827',
+                        borderColor: '#1e2a42',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: ctx => ' R$ ' + ctx.parsed.toLocaleString('pt-BR', {minimumFractionDigits: 2})
+                        }
+                    }
+                }
+            }
+        });
+    }
+}
+
+// TABLE FILTER
+function filterTable() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const type = document.getElementById('filterType').value;
+    const rows = document.querySelectorAll('#txTable tbody tr');
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const typeCell = row.cells[4]?.textContent.trim();
+        const matchSearch = text.includes(search);
+        const matchType = !type || typeCell === type;
+        row.style.display = matchSearch && matchType ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

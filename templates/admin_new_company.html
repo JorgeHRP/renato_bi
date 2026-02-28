@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Nova Empresa — Profecia{% endblock %}
+{% block page_title %}Nova Empresa{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{{ url_for('admin_companies') }}" class="btn btn-sm btn-outline-custom">
+        <i class="bi bi-arrow-left me-1"></i> Voltar
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="dash-card">
+            <h5 style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:24px;">
+                <i class="bi bi-building me-2" style="color:var(--accent);"></i>Cadastrar Nova Empresa
+            </h5>
+
+            <form method="POST">
+                <!-- COMPANY INFO -->
+                <div style="margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid var(--border);">
+                    <div style="font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted-custom);font-weight:600;margin-bottom:16px;">
+                        Dados da Empresa
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label-custom">Nome da Empresa *</label>
+                            <input type="text" name="name" class="form-control form-control-custom" 
+                                   placeholder="Ex: Acme Consultoria Ltda" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label-custom">CNPJ</label>
+                            <input type="text" name="cnpj" class="form-control form-control-custom"
+                                   placeholder="00.000.000/0001-00">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Segmento / Setor</label>
+                            <input type="text" name="segment" class="form-control form-control-custom"
+                                   placeholder="Ex: Advocacia, Varejo, Tech...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CLIENT USER -->
+                <div>
+                    <div style="font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted-custom);font-weight:600;margin-bottom:16px;">
+                        Acesso do Cliente
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Nome Completo</label>
+                            <input type="text" name="client_name" class="form-control form-control-custom"
+                                   placeholder="Nome do responsável">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">E-mail</label>
+                            <input type="email" name="client_email" class="form-control form-control-custom"
+                                   placeholder="email@empresa.com">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Usuário (login) *</label>
+                            <input type="text" name="client_username" class="form-control form-control-custom"
+                                   placeholder="sem espaços, ex: empresa.cliente" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Senha *</label>
+                            <div style="position:relative;">
+                                <input type="password" name="client_password" id="newPwd" 
+                                       class="form-control form-control-custom"
+                                       placeholder="••••••••" required style="padding-right:40px;">
+                                <i class="bi bi-eye" onclick="togglePwd()" id="toggleNewPwd"
+                                   style="position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#6b7a99;cursor:pointer;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 mt-4">
+                    <button type="submit" class="btn-accent btn flex-1">
+                        <i class="bi bi-check-lg me-2"></i>Criar Empresa
+                    </button>
+                    <a href="{{ url_for('admin_companies') }}" class="btn btn-outline-custom">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePwd() {
+    const f = document.getElementById('newPwd');
+    const i = document.getElementById('toggleNewPwd');
+    f.type = f.type === 'password' ? 'text' : 'password';
+    i.className = f.type === 'text' ? 'bi bi-eye-slash' : 'bi bi-eye';
+    i.style.cssText = 'position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#6b7a99;cursor:pointer;';
+}
+</script>
+{% endblock %}

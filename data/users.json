@@ -1,0 +1,21 @@
+{
+  "admin": {
+    "id": "admin",
+    "username": "admin",
+    "password": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+    "role": "admin",
+    "name": "Administrador",
+    "email": "admin@profecia.com.br",
+    "created_at": "2026-02-27T22:59:10.820879"
+  },
+  "teste123": {
+    "id": "teste123",
+    "username": "teste123",
+    "password": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
+    "role": "client",
+    "name": "teste teste",
+    "email": "jorgeprado.contato@outlook.com",
+    "company_id": "4bc66f42",
+    "created_at": "2026-02-27T23:05:38.776504"
+  }
+}

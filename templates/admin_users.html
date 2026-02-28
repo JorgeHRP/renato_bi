@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Usuários — Profecia{% endblock %}
+{% block page_title %}Usuários{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h5 class="mb-0" style="font-family:'Syne',sans-serif;font-weight:700;">Todos os Usuários</h5>
+    <small style="color:var(--text-muted-custom);">{{ users|length }} usuário(s) cadastrado(s)</small>
+</div>
+
+<div class="dash-card p-0" style="overflow:hidden;">
+    <table class="table table-custom mb-0">
+        <thead>
+            <tr>
+                <th>Usuário</th>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Função</th>
+                <th>Empresa</th>
+                <th>Cadastro</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for uid, user in users.items() %}
+            <tr>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="avatar" style="width:32px;height:32px;border-radius:8px;font-size:.75rem;">
+                            {{ user.name[0].upper() }}
+                        </div>
+                        <code style="font-size:.82rem;color:#a78bfa;">@{{ user.username }}</code>
+                    </div>
+                </td>
+                <td style="font-size:.88rem;font-weight:500;">{{ user.name }}</td>
+                <td style="font-size:.8rem;color:var(--text-muted-custom);">{{ user.email or '—' }}</td>
+                <td>
+                    {% if user.role == 'admin' %}
+                    <span style="background:rgba(251,191,36,.12);color:#fbbf24;border-radius:6px;padding:3px 10px;font-size:.72rem;font-weight:600;">
+                        <i class="bi bi-shield-fill me-1"></i>Admin
+                    </span>
+                    {% else %}
+                    <span style="background:rgba(0,153,255,.12);color:#0099ff;border-radius:6px;padding:3px 10px;font-size:.72rem;font-weight:600;">
+                        <i class="bi bi-person me-1"></i>Cliente
+                    </span>
+                    {% endif %}
+                </td>
+                <td style="font-size:.82rem;">
+                    {% if user.get('company_id') %}
+                    <a href="{{ url_for('admin_company_detail', company_id=user.company_id) }}"
+                       style="color:var(--accent);text-decoration:none;">
+                        {{ companies.get(user.company_id, {}).get('name', user.company_id) }}
+                    </a>
+                    {% else %}
+                    <span style="color:var(--text-muted-custom);">—</span>
+                    {% endif %}
+                </td>
+                <td style="font-size:.8rem;color:var(--text-muted-custom);">
+                    {{ user.created_at[:10] if user.created_at else '—' }}
+                </td>
+                <td>
+                    {% if user.role != 'admin' or uid != 'admin' %}
+                    <button class="btn btn-sm" 
+                            style="background:rgba(0,153,255,.15);color:#0099ff;border-radius:8px;padding:5px 12px;font-size:.78rem;border:none;"
+                            onclick="openReset('{{ uid }}', '{{ user.name }}')"
+                            data-bs-toggle="modal" data-bs-target="#resetModal">
+                        <i class="bi bi-key me-1"></i>Senha
+                    </button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- RESET PASSWORD MODAL -->
+<div class="modal fade" id="resetModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:var(--secondary);border:1px solid var(--border);border-radius:16px;">
+            <div class="modal-header" style="border-bottom:1px solid var(--border);">
+                <h5 class="modal-title" style="font-family:'Syne',sans-serif;">Redefinir Senha</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="resetForm" method="POST">
+                <div class="modal-body p-4">
+                    <p style="color:var(--text-muted-custom);font-size:.88rem;" id="resetText"></p>
+                    <label class="form-label-custom">Nova Senha</label>
+                    <input type="password" name="new_password" class="form-control form-control-custom"
+                           placeholder="••••••••" required>
+                </div>
+                <div class="modal-footer" style="border-top:1px solid var(--border);">
+                    <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-accent btn">
+                        <i class="bi bi-check-lg me-1"></i>Confirmar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openReset(userId, userName) {
+    document.getElementById('resetForm').action = '/admin/users/' + userId + '/reset-password';
+    document.getElementById('resetText').textContent = 'Redefinir senha de: ' + userName;
+}
+</script>
+{% endblock %}

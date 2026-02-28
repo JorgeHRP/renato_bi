@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Admin — Profecia{% endblock %}
+{% block page_title %}Dashboard Admin{% endblock %}
+
+{% block content %}
+<!-- STATS ROW -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card green">
+            <div class="stat-icon green"><i class="bi bi-building"></i></div>
+            <div class="stat-value">{{ company_count }}</div>
+            <div class="stat-label">Empresas Ativas</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="bi bi-people"></i></div>
+            <div class="stat-value">{{ client_count }}</div>
+            <div class="stat-label">Clientes</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card purple">
+            <div class="stat-icon purple"><i class="bi bi-file-earmark-spreadsheet"></i></div>
+            <div class="stat-value">{{ companies.values() | selectattr('has_data') | list | length }}</div>
+            <div class="stat-label">Com Dados</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card red">
+            <div class="stat-icon red"><i class="bi bi-exclamation-circle"></i></div>
+            <div class="stat-value">{{ companies.values() | rejectattr('has_data') | list | length }}</div>
+            <div class="stat-label">Sem Dados</div>
+        </div>
+    </div>
+</div>
+
+<!-- COMPANIES SECTION -->
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+        <h5 class="mb-0" style="font-family:'Syne',sans-serif;font-weight:700;">Empresas Recentes</h5>
+        <small style="color:var(--text-muted-custom);">Clique numa empresa para gerenciar</small>
+    </div>
+    <a href="{{ url_for('admin_new_company') }}" class="btn-accent btn">
+        <i class="bi bi-plus-lg me-1"></i> Nova Empresa
+    </a>
+</div>
+
+{% if companies %}
+<div class="row g-3 mb-4">
+    {% for cid, company in companies.items() %}
+    <div class="col-md-6 col-xl-4">
+        <a href="{{ url_for('admin_company_detail', company_id=cid) }}" class="company-card">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="company-initials" style="background: linear-gradient(135deg, 
+                    {% set colors = ['rgba(0,212,170,.2)', 'rgba(0,153,255,.2)', 'rgba(167,139,250,.2)', 'rgba(251,191,36,.2)'] %}
+                    {{ colors[loop.index0 % 4] }}, transparent);
+                    color: {% set tc = ['#00d4aa','#0099ff','#a78bfa','#fbbf24'] %}{{ tc[loop.index0 % 4] }};">
+                    {{ company.name[:2].upper() }}
+                </div>
+                <div class="flex-1">
+                    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;">{{ company.name }}</div>
+                    <div style="font-size:.72rem;color:var(--text-muted-custom);">
+                        {% if company.cnpj %}CNPJ: {{ company.cnpj }}{% endif %}
+                        {% if company.segment %} · {{ company.segment }}{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    {% if company.has_data %}
+                    <span style="background:rgba(0,212,170,.12);color:#00d4aa;border-radius:6px;padding:3px 10px;font-size:.72rem;font-weight:600;">
+                        <i class="bi bi-check-circle me-1"></i>Dados carregados
+                    </span>
+                    {% else %}
+                    <span style="background:rgba(251,191,36,.1);color:#fbbf24;border-radius:6px;padding:3px 10px;font-size:.72rem;font-weight:600;">
+                        <i class="bi bi-clock me-1"></i>Aguardando Excel
+                    </span>
+                    {% endif %}
+                </div>
+                <small style="color:var(--text-muted-custom);font-size:.7rem;">
+                    {{ company.created_at[:10] if company.created_at else '' }}
+                </small>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="dash-card text-center py-5">
+    <i class="bi bi-building" style="font-size:3rem;color:var(--text-muted-custom);"></i>
+    <div style="font-family:'Syne',sans-serif;font-weight:600;margin-top:12px;">Nenhuma empresa cadastrada</div>
+    <div style="color:var(--text-muted-custom);font-size:.88rem;margin:6px 0 20px;">Crie a primeira empresa para começar</div>
+    <a href="{{ url_for('admin_new_company') }}" class="btn-accent btn">
+        <i class="bi bi-plus-lg me-1"></i> Criar Empresa
+    </a>
+</div>
+{% endif %}
+{% endblock %}
